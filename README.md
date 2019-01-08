@@ -10,5 +10,7 @@ This is due to the difference in the way the JSoup api loads html from a url vs 
 
 It is assumed that all urls should be output as absolute.
 
+I've included only one test but this exercises the bulk of the code but only at the top level of a page heirarchy, due to the time
+restriction on the exercise.
 
 
