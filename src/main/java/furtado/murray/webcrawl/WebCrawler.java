@@ -7,13 +7,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class WebCrawler {
 	
-    private HashSet<String> pagesVisited;
+    private HashSet<String> pagesVisited = new HashSet<String>();
     private static String startUrl = "http://www.wipro.com/";
+    private StringBuilder output = new StringBuilder();
+    
     public WebCrawler() {
-    	pagesVisited = new HashSet<String>();
     }
 
     
@@ -22,10 +24,12 @@ public class WebCrawler {
         if (!pagesVisited.contains(URL)) {
             try {
                 pagesVisited.add(URL);
-                System.out.println("Page ----- " + URL);
+                output.append("Page ----- ").append(URL).append("\n");
                 Document document = Jsoup.connect(URL).get();
                 processDocument(document);
-                
+                PrintWriter out = new PrintWriter("output.txt");
+                out.println(output.toString());
+                out.close();
             } catch (IOException e) {
                 System.err.println("For '" + URL + "': " + e.getMessage());
             }
@@ -35,9 +39,9 @@ public class WebCrawler {
 
 	public void processDocument(Document document) {
 		Elements links = document.select("a[href]");	
-		outputTypeForPage(links,"href","Link");
+		output.append(outputTypeForPage(links,"href","Link"));
 		Elements images = document.getElementsByTag("img");	
-		outputTypeForPage(images,"src","Image");
+		output.append(outputTypeForPage(images,"src","Image"));
 		for (Element page : links) {
 			String absUrl = page.attr("abs:href");
 			// Replace https:// with http:// via regex to ignore scheme mismatches
@@ -45,17 +49,23 @@ public class WebCrawler {
 			if(absUrl != "" && absUrl.startsWith(startUrl)) {
 				getPageLinks(page.attr("abs:href"));
 			}
-				
 		}
 	}
 	
 
-    private void outputTypeForPage(Elements linksOnPage, String selector, String linkType) {
+    private String outputTypeForPage(Elements linksOnPage, String selector, String linkType) {
+    	StringBuilder pageOut = new StringBuilder();
     	for (Element elem : linksOnPage) {
+    		// render both relative and absolute links as absolute 
         	String link = elem.absUrl(selector);
         	if(!link.equals(""))
-        		System.out.println(linkType + ": " + link);
+        		pageOut.append(linkType).append(": ").append(link).append("\n");
         }
+    	return pageOut.toString();
+    }
+    
+    public String getOutput() {
+    	return output.toString();
     }
     
 
