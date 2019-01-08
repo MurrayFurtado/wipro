@@ -40,7 +40,8 @@ public class WebCrawler {
 		outputTypeForPage(images,"src","Image");
 		for (Element page : links) {
 			String absUrl = page.attr("abs:href");
-			absUrl = absUrl.replaceFirst("^(http[s]?://.|http[s]?://.)","http://");
+			// Replace https:// with http:// via regex to ignore scheme mismatches
+			absUrl = absUrl.replaceFirst("^(http[s]?://|\\.|http[s]?://|\\.)","http://");
 			if(absUrl != "" && absUrl.startsWith(startUrl)) {
 				getPageLinks(page.attr("abs:href"));
 			}
